@@ -1,6 +1,6 @@
 import { DeviceManager, OFFLINE_THRESHOLD_MS } from '../src/deviceManager';
 
-describe.skip('DeviceManager', () => {
+describe('DeviceManager', () => {
   let manager: DeviceManager;
 
   beforeEach(() => {
@@ -14,6 +14,24 @@ describe.skip('DeviceManager', () => {
     manager.deviceCheckIn('device-1');
     const device = manager.listDevices()[0];
     expect(device.id).toBe('device-1');
+  });
+
+  it('should not throw error with unregistered device id', () => {
+    //This test can be modified
+    const deviceId = 'nonRegisteredDeviceId';
+    const functions = [
+      manager.getStatus,
+      manager.isOnline,
+      manager.deviceCheckIn,
+    ];
+    for (const func of functions) {
+      func(deviceId);
+    }
+  });
+
+  it('should indicate status as registered after device registration', () => {
+    manager.registerDevice('device-1');
+    expect(manager.getStatus('device-1')).toBe('registered');
   });
 
   it('should auto-register unknown device on check-in', () => {
