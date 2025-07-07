@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+
+# TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# IDEs
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+coverage/
+
+# Jest
+jest-cache/
+jest-config/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Optional: VS Code launch configs or workspace state
+.vscode/
+
