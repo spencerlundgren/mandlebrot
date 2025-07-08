@@ -4,7 +4,7 @@ export const OFFLINE_THRESHOLD_MS = 10;
 interface Device {
   id: string;
   status: 'unregistered' | 'registered' | 'online' | 'updating' | 'offline';
-  lastCheckedInMs: number;
+  lastCheckedIn: Date;
   firmwareVersion: string;
 };
 
@@ -12,7 +12,7 @@ export class DeviceManager {
   private devices: {[deviceId: string]: Device} = {};
 
   registerDevice(id: string): void {
-    this.devices[id] = {id, status: 'registered', lastCheckedInMs: 0, firmwareVersion: '0.0.1'};
+    this.devices[id] = {id, status: 'registered', lastCheckedIn: new Date(), firmwareVersion: '0.0.1'};
   }
 
   deviceCheckIn(id: string): void {
@@ -38,11 +38,7 @@ export class DeviceManager {
   getStatus(id: string): 'unregistered' | 'registered' | 'online' | 'updating' | 'offline' {
     console.log('devices: ', this.devices);
     const device = this.devices[id];
-    if (device) {
-      return device.status;
-    } else {
-      return 'unregistered';
-    }
+    return device.status;
   }
 
   isOnline(id: string): boolean {
@@ -61,6 +57,11 @@ export class DeviceManager {
 
   listDevices(): Device[] {
     return Object.values(this.devices);
+  }
+
+  async waitForDeviceToCheckIn(deviceId) {
+    //TODO: Implement this function
+
   }
 
   private getMsBetweenDates(historyDate: Date, laterDate: Date): number {
