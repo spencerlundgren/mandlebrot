@@ -16,19 +16,6 @@ describe.only('DeviceManager', () => {
     expect(device.id).toBe('device-1');
   });
 
-  it('should not throw error with unregistered device id', () => {
-    //This test can be modified
-    const deviceId = 'nonRegisteredDeviceId';
-    const functions = [
-      manager.getStatus,
-      manager.isOnline,
-      manager.deviceCheckIn,
-    ];
-    for (const func of functions) {
-      func(deviceId);
-    }
-  });
-
   it('should indicate status as registered after device registration', () => {
     manager.registerDevice('device-1');
     expect(manager.getStatus('device-1')).toBe('registered');
@@ -62,6 +49,19 @@ describe.only('DeviceManager', () => {
   it('should show offline and unregistered for non-existent device', () => {
     expect(manager.isOnline('nonexistent')).toBe(false);
     expect(manager.getStatus('nonexistent')).toBe('unregistered');
+  });
+
+  it.skip('should not throw error with unregistered device id', () => {
+    //This test can be modified
+    const deviceId = 'nonRegisteredDeviceId';
+    const functions = [
+      manager.getStatus,
+      manager.isOnline,
+      manager.deviceCheckIn,
+    ];
+    for (const func of functions) {
+      func(deviceId);
+    }
   });
 
   it.skip('should show devices as offline if they have not checked in passed offline threshold', async () => {

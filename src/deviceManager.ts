@@ -59,13 +59,4 @@ export class DeviceManager {
     return Object.values(this.devices);
   }
 
-  async waitForDeviceToCheckIn(deviceId) {
-    //TODO: Implement this function
-
-  }
-
-  private getMsBetweenDates(historyDate: Date, laterDate: Date): number {
-    return laterDate.getTime() - historyDate.getTime();
-  }
-
 }

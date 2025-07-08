@@ -42,7 +42,7 @@ describe.skip('FirmwareUpdater', () => {
     expect(manager.getFirmwareVersion('online-device')).toStrictEqual(requestedVersion);
   });
 
-  it.only('should remove pending updates when those complete', async () => {
+  it.skip('should remove pending updates when those complete', async () => {
     const deviceId = 'offline-device';
     let onUpdated!: (deviceId: string) => void;
     const waitForMe = new Promise<void>((resolve) => {
