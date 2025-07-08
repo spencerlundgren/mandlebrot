@@ -1,6 +1,6 @@
 import { DeviceManager, OFFLINE_THRESHOLD_MS } from '../src/deviceManager';
 
-describe('DeviceManager', () => {
+describe.only('DeviceManager', () => {
   let manager: DeviceManager;
 
   beforeEach(() => {

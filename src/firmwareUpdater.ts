@@ -3,43 +3,44 @@ import { DeviceManager } from './deviceManager';
 
 export class FirmwareUpdater {
   private pendingUpdates: Set<string> = new Set();
+  private interval: NodeJS.Timeout;
 
-  constructor(private deviceManager: DeviceManager) {}
-
-  requestUpdate(deviceId: string): boolean {
-    if (!this.deviceManager.isOnline(deviceId)) {
-      this.pendingUpdates.add(deviceId);
-      return false; // queued
-    }
-    return true; // update started
+  constructor(private deviceManager: DeviceManager) {
+    this.interval = setInterval(() => {
+      this.attemptPendingUpdates();
+    }, 20)
   }
 
-  checkForPendingUpdates(deviceId: string): boolean {
-    if (this.pendingUpdates.has(deviceId) && this.deviceManager.isOnline(deviceId)) {
-      this.pendingUpdates.delete(deviceId);
-      return true;
+  destroy() {
+    this.interval.close();
+  }
+
+  requestUpdate(
+    deviceId: string,
+    requestedVersion: string,
+    callbackWhenComplete?: (deviceId: string) => void,
+  ): boolean {
+    if (!this.deviceManager.isOnline(deviceId)) {
+      this.pendingUpdates.add(deviceId);
+      return false;
     }
-    return false;
+    this.deviceManager.updateDeviceFirmware(deviceId, requestedVersion);
+    return true;
   }
 
   listPendingUpdates(): string[] {
     return Array.from(this.pendingUpdates);
   }
 
-  // Phase 5: Persistence methods
-  saveState(storage: { save: (key: string, value: string[]) => void }): void {
-    storage.save('pending', this.listPendingUpdates());
-  }
-
-  loadState(storage: { load: (key: string) => string[] }): void {
-    const saved = storage.load('pending');
-    saved.forEach(id => this.pendingUpdates.add(id));
-  }
-
-  // Phase 6: Async simulated update trigger
-  async delayedCheckInAndUpdate(deviceId: string, delayMs: number = 100): Promise<boolean> {
-    await new Promise(resolve => setTimeout(resolve, delayMs));
-    this.deviceManager.registerDevice(deviceId);
-    return this.checkForPendingUpdates(deviceId);
+  private attemptPendingUpdates() {
+    const firmwareVersion = '1.1.1';
+    if (this.pendingUpdates.size > 0) {
+      for (const deviceId of this.pendingUpdates.values()) {
+        const isOnline = this.deviceManager.isOnline(deviceId);
+        if (isOnline) {
+          this.deviceManager.updateDeviceFirmware(deviceId, firmwareVersion);
+        }
+      }
+    }
   }
 }

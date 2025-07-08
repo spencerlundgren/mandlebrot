@@ -3,7 +3,7 @@ export const OFFLINE_THRESHOLD_MS = 10;
 
 interface Device {
   id: string;
-  status: 'unregistered' | 'registered' | 'online' | 'offline';
+  status: 'unregistered' | 'registered' | 'online' | 'updating' | 'offline';
   lastCheckedInMs: number;
   firmwareVersion: string;
 };
@@ -20,15 +20,43 @@ export class DeviceManager {
     device.status = 'online';
   }
 
-  getStatus(id: string): 'unregistered' | 'registered' | 'online' | 'offline' {
+  async updateDeviceFirmware(deviceId: string, firmwareVersion: string): Promise<boolean> {
+    if (!this.isOnline(deviceId)) {
+      throw new Error('Cannot update offline device');
+    }
+
+    return new Promise((resolve, reject) => {
+      const msToUpdate = Math.floor(Math.random() * 20);
+      setTimeout(() => {
+        this.devices[deviceId].firmwareVersion = firmwareVersion;
+        resolve(true);
+      }, msToUpdate);
+    });
+
+  }
+
+  getStatus(id: string): 'unregistered' | 'registered' | 'online' | 'updating' | 'offline' {
     console.log('devices: ', this.devices);
     const device = this.devices[id];
-    return device.status;
+    if (device) {
+      return device.status;
+    } else {
+      return 'unregistered';
+    }
   }
 
   isOnline(id: string): boolean {
     const device = this.devices[id];
-    return device.status === 'online' ? true : false;
+    if (device) {
+      return (device.status === 'online' || device.status === 'updating') ? true : false;
+    } else {
+      return false;
+    }
+  }
+
+  getFirmwareVersion(id: string): string {
+    const device = this.devices[id];
+    return (device.firmwareVersion);
   }
 
   listDevices(): Device[] {
