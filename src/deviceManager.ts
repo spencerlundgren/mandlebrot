@@ -1,28 +1,38 @@
-
 export const OFFLINE_THRESHOLD_MS = 10;
 
 interface Device {
   id: string;
-  status: 'unregistered' | 'registered' | 'online' | 'updating' | 'offline';
+  status: "unregistered" | "registered" | "online" | "updating" | "offline";
   lastCheckedIn: Date;
   firmwareVersion: string;
-};
+}
 
 export class DeviceManager {
-  private devices: {[deviceId: string]: Device} = {};
+  private devices: { [deviceId: string]: Device } = {};
 
   registerDevice(id: string): void {
-    this.devices[id] = {id, status: 'registered', lastCheckedIn: new Date(), firmwareVersion: '0.0.1'};
+    this.devices[id] = {
+      id,
+      status: "registered",
+      lastCheckedIn: new Date(),
+      firmwareVersion: "0.0.1",
+    };
   }
 
   deviceCheckIn(id: string): void {
+    this.registerDevice(id);
     const device = this.devices[id];
-    device.status = 'online';
+    device.lastCheckedIn = new Date();
+
+    device.status = "online";
   }
 
-  async updateDeviceFirmware(deviceId: string, firmwareVersion: string): Promise<boolean> {
+  async updateDeviceFirmware(
+    deviceId: string,
+    firmwareVersion: string
+  ): Promise<boolean> {
     if (!this.isOnline(deviceId)) {
-      throw new Error('Cannot update offline device');
+      throw new Error("Cannot update offline device");
     }
 
     return new Promise((resolve, reject) => {
@@ -32,19 +42,32 @@ export class DeviceManager {
         resolve(true);
       }, msToUpdate);
     });
-
   }
 
-  getStatus(id: string): 'unregistered' | 'registered' | 'online' | 'updating' | 'offline' {
-    console.log('devices: ', this.devices);
+  getStatus(
+    id: string
+  ): "unregistered" | "registered" | "online" | "updating" | "offline" {
+    if (!this) return "unregistered";
     const device = this.devices[id];
+    if (!device) return "unregistered";
+
     return device.status;
   }
 
   isOnline(id: string): boolean {
     const device = this.devices[id];
+
+    if (
+      device.lastCheckedIn.getTime() <
+      new Date().getTime() + OFFLINE_THRESHOLD_MS
+    ) {
+      device.status = "offline";
+    }
+
     if (device) {
-      return (device.status === 'online' || device.status === 'updating') ? true : false;
+      return device.status === "online" || device.status === "updating"
+        ? true
+        : false;
     } else {
       return false;
     }
@@ -52,11 +75,10 @@ export class DeviceManager {
 
   getFirmwareVersion(id: string): string {
     const device = this.devices[id];
-    return (device.firmwareVersion);
+    return device.firmwareVersion;
   }
 
   listDevices(): Device[] {
     return Object.values(this.devices);
   }
-
 }
